@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>오늘 점심 뭐먹지?</title>
+  <title>점심 메뉴 추천</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body {
@@ -44,50 +44,71 @@
     .nav-button:hover {
       transform: translateY(-1px);
     }
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1rem;
+    }
+    .category-grid .bottom-row {
+      grid-column: span 3;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+    }
+    @media (max-width: 640px) {
+      .category-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .category-grid .bottom-row {
+        grid-column: span 2;
+      }
+    }
   </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col items-center p-4">
   <div class="max-w-4xl w-full bg-white rounded-lg shadow-lg p-6">
-    <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">오늘 점심 뭐먹지</h1>
+    <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">🍽️오늘 점심 뭐먹지❓</h1>
     
     <!-- Filter Steps -->
     <div id="filter-steps" class="mb-6">
       <!-- Category Step -->
       <div id="step-category" class="step">
-        <label class="block text-lg font-medium text-gray-700 mb-4 text-center">카테고리를 선택하세요</label>
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <div class="filter-box selected" data-filter="category" data-value="all">모두</div>
-          <div class="filter-box" data-filter="category" data-value="soup">국물/탕류</div>
-          <div class="filter-box" data-filter="category" data-value="grill_stirfry">구이/볶음류</div>
-          <div class="filter-box" data-filter="category" data-value="rice_noodle">밥/면류</div>
-          <div class="filter-box" data-filter="category" data-value="quick">간편식</div>
+        <label class="block text-lg font-medium text-gray-700 mb-4 text-center">카테고리를 선택하세요 ✅</label>
+        <div class="category-grid">
+          <div class="filter-box selected" data-filter="category" data-value="all">모두 🌟</div>
+          <div class="filter-box" data-filter="category" data-value="soup">국물/탕류 🍜</div>
+          <div class="filter-box" data-filter="category" data-value="grill_stirfry">구이/볶음류 🍖</div>
+          <div class="bottom-row">
+            <div class="filter-box" data-filter="category" data-value="rice_noodle">밥/면류 🍚</div>
+            <div class="filter-box" data-filter="category" data-value="quick">간편식 🥪</div>
+          </div>
         </div>
       </div>
       <!-- Spiciness Step -->
       <div id="step-spiciness" class="step hidden">
-        <label class="block text-lg font-medium text-gray-700 mb-4 text-center">맵기를 선택하세요</label>
+        <label class="block text-lg font-medium text-gray-700 mb-4 text-center">맵기를 선택하세요 ✅</label>
         <div class="grid grid-cols-2 gap-4">
-          <div class="filter-box selected" data-filter="spiciness" data-value="all">모두</div>
-          <div class="filter-box" data-filter="spiciness" data-value="non-spicy">맵지 않음</div>
-          <div class="filter-box" data-filter="spiciness" data-value="mild">약간 매움</div>
-          <div class="filter-box" data-filter="spiciness" data-value="spicy">매움</div>
+          <div class="filter-box selected" data-filter="spiciness" data-value="all">모두 🌟</div>
+          <div class="filter-box" data-filter="spiciness" data-value="non-spicy">맵지 않음 😊</div>
+          <div class="filter-box" data-filter="spiciness" data-value="mild">약간 매움 🔥</div>
+          <div class="filter-box" data-filter="spiciness" data-value="spicy">매움 🌶️</div>
         </div>
         <div class="mt-6 flex justify-center">
-          <button id="prev-spiciness" class="nav-button bg-gray-300 text-gray-800 hover:bg-gray-400">이전</button>
+          <button id="prev-spiciness" class="nav-button bg-gray-300 text-gray-800 hover:bg-gray-400">이전 ⬅️</button>
         </div>
       </div>
       <!-- Occasion Step -->
       <div id="step-occasion" class="step hidden">
-        <label class="block text-lg font-medium text-gray-700 mb-4 text-center">상황을 선택하세요</label>
+        <label class="block text-lg font-medium text-gray-700 mb-4 text-center">상황을 선택하세요 ✅</label>
         <div class="grid grid-cols-2 gap-4">
-          <div class="filter-box selected" data-filter="occasion" data-value="all">모두</div>
-          <div class="filter-box" data-filter="occasion" data-value="daily">일상</div>
-          <div class="filter-box" data-filter="occasion" data-value="quick">간편</div>
-          <div class="filter-box" data-filter="occasion" data-value="date">데이트</div>
+          <div class="filter-box selected" data-filter="occasion" data-value="all">모두 🌟</div>
+          <div class="filter-box" data-filter="occasion" data-value="daily">일상 🏠</div>
+          <div class="filter-box" data-filter="occasion" data-value="quick">간편 ⏳</div>
+          <div class="filter-box" data-filter="occasion" data-value="date">데이트 💑</div>
         </div>
         <div class="mt-6 flex justify-center space-x-4">
-          <button id="prev-occasion" class="nav-button bg-gray-300 text-gray-800 hover:bg-gray-400">이전</button>
-          <button id="reset-occasion" class="nav-button bg-red-500 text-white hover:bg-red-600">처음으로</button>
+          <button id="prev-occasion" class="nav-button bg-gray-300 text-gray-800 hover:bg-gray-400">이전 ⬅️</button>
+          <button id="reset-occasion" class="nav-button bg-red-500 text-white hover:bg-red-600">처음으로 🔄</button>
         </div>
       </div>
     </div>
@@ -279,9 +300,9 @@
       menuList.innerHTML = filteredMenus.map(menu => `
         <div class="menu-card bg-gray-50 p-4 rounded-lg shadow-md">
           <h3 class="text-lg font-semibold text-gray-800">${menu.name}</h3>
-          <p class="text-sm text-gray-600">카테고리: ${menu.category === 'soup' ? '국물/탕류' : menu.category === 'grill_stirfry' ? '구이/볶음류' : menu.category === 'rice_noodle' ? '밥/면류' : '간편식'}</p>
-          <p class="text-sm text-gray-600">맵기: ${menu.spiciness === 'non-spicy' ? '맵지 않음' : menu.spiciness === 'mild' ? '약간 매움' : '매움'}</p>
-          <p class="text-sm text-gray-600">상황: ${menu.occasion.map(o => o === 'daily' ? '일상' : o === 'quick' ? '간편' : '데이트').join(', ')}</p>
+          <p class="text-sm text-gray-600">카테고리: ${menu.category === 'soup' ? '국물/탕류 🍜' : menu.category === 'grill_stirfry' ? '구이/볶음류 🍖' : menu.category === 'rice_noodle' ? '밥/면류 🍚' : '간편식 🥪'}</p>
+          <p class="text-sm text-gray-600">맵기: ${menu.spiciness === 'non-spicy' ? '맵지 않음 😊' : menu.spiciness === 'mild' ? '약간 매움 🔥' : '매움 🌶️'}</p>
+          <p class="text-sm text-gray-600">상황: ${menu.occasion.map(o => o === 'daily' ? '일상 🏠' : o === 'quick' ? '간편 ⏳' : '데이트 💑').join(', ')}</p>
         </div>
       `).join('');
     }
