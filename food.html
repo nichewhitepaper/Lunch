@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>점심 메뉴 추천</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+    .menu-card {
+      transition: transform 0.2s;
+    }
+    .menu-card:hover {
+      transform: scale(1.05);
+    }
+    .filter-box {
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background-color: #f3f4f6;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 1.5rem;
+      text-align: center;
+      font-weight: 500;
+    }
+    .filter-box:hover {
+      background-color: #e5e7eb;
+      transform: translateY(-2px);
+    }
+    .filter-box.selected {
+      background-color: #1f2937;
+      color: white;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+      transform: translateY(-4px);
+    }
+    .nav-button {
+      transition: all 0.3s ease;
+      border-radius: 8px;
+      padding: 0.75rem 1.5rem;
+      font-weight: 500;
+    }
+    .nav-button:hover {
+      transform: translateY(-1px);
+    }
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1rem;
+    }
+    .category-grid .bottom-row {
+      grid-column: span 3;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+    }
+    @media (max-width: 640px) {
+      .category-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .category-grid .bottom-row {
+        grid-column: span 2;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center p-4">
+  <div class="max-w-4xl w-full bg-white rounded-lg shadow-lg p-6">
+    <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">점심 메뉴 추천</h1>
+    
+    <!-- Filter Steps -->
+    <div id="filter-steps" class="mb-6">
+      <!-- Category Step -->
+      <div id="step-category" class="step">
+        <label class="block text-lg font-medium text-gray-700 mb-4 text-center">카테고리를 선택하세요</label>
+        <div class="category-grid">
+          <div class="filter-box selected" data-filter="category" data-value="all">모두</div>
+          <div class="filter-box" data-filter="category" data-value="soup">국물/탕류</div>
+          <div class="filter-box" data-filter="category" data-value="grill_stirfry">구이/볶음류</div>
+          <div class="bottom-row">
+            <div class="filter-box" data-filter="category" data-value="rice_noodle">밥/면류</div>
+            <div class="filter-box" data-filter="category" data-value="quick">간편식</div>
+          </div>
+        </div>
+      </div>
+      <!-- Spiciness Step -->
+      <div id="step-spiciness" class="step hidden">
+        <label class="block text-lg font-medium text-gray-700 mb-4 text-center">맵기를 선택하세요</label>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="filter-box selected" data-filter="spiciness" data-value="all">모두</div>
+          <div class="filter-box" data-filter="spiciness" data-value="non-spicy">맵지 않음</div>
+          <div class="filter-box" data-filter="spiciness" data-value="mild">약간 매움</div>
+          <div class="filter-box" data-filter="spiciness" data-value="spicy">매움</div>
+        </div>
+        <div class="mt-6 flex justify-center">
+          <button id="prev-spiciness" class="nav-button bg-gray-300 text-gray-800 hover:bg-gray-400">이전</button>
+        </div>
+      </div>
+      <!-- Occasion Step -->
+      <div id="step-occasion" class="step hidden">
+        <label class="block text-lg font-medium text-gray-700 mb-4 text-center">상황을 선택하세요</label>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="filter-box selected" data-filter="occasion" data-value="all">모두</div>
+          <div class="filter-box" data-filter="occasion" data-value="daily">일상</div>
+          <div class="filter-box" data-filter="occasion" data-value="quick">간편</div>
+          <div class="filter-box" data-filter="occasion" data-value="date">데이트</div>
+        </div>
+        <div class="mt-6 flex justify-center space-x-4">
+          <button id="prev-occasion" class="nav-button bg-gray-300 text-gray-800 hover:bg-gray-400">이전</button>
+          <button id="reset-occasion" class="nav-button bg-red-500 text-white hover:bg-red-600">처음으로</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Menu List -->
+    <div id="menu-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 hidden"></div>
+  </div>
+
+  <script>
+    const menus = [
+      // 국물/탕류
+      { name: "김치찌개", category: "soup", spiciness: "spicy", occasion: ["daily", "date"] },
+      { name: "된장찌개", category: "soup", spiciness: "non-spicy", occasion: ["daily"] },
+      { name: "순두부찌개", category: "soup", spiciness: "spicy", occasion: ["daily", "date"] },
+      { name: "부대찌개", category: "soup", spiciness: "mild", occasion: ["daily", "date"] },
+      { name: "감자탕", category: "soup", spiciness: "mild", occasion: ["daily"] },
+      { name: "뼈해장국", category: "soup", spiciness: "mild", occasion: ["daily"] },
+      { name: "갈비탕", category: "soup", spiciness: "non-spicy", occasion: ["daily", "date"] },
+      { name: "해물탕", category: "soup", spiciness: "mild", occasion: ["date"] },
+      { name: "동태찌개", category: "soup", spiciness: "spicy", occasion: ["daily"] },
+      { name: "설렁탕", category: "soup", spiciness: "non-spicy", occasion: ["daily"] },
+      { name: "육개장", category: "soup", spiciness: "spicy", occasion: ["daily"] },
+      { name: "콩나물국밥", category: "soup", spiciness: "mild", occasion: ["daily"] },
+      { name: "순대국", category: "soup", spiciness: "non-spicy", occasion: ["daily"] },
+      { name: "선지해장국", category: "soup", spiciness: "mild", occasion: ["daily"] },
+      { name: "양평해장국", category: "soup", spiciness: "mild", occasion: ["daily"] },
+      { name: "콩나물해장국", category: "soup", spiciness: "mild", occasion: ["daily"] },
+      { name: "내장탕", category: "soup", spiciness: "mild", occasion: ["daily"] },
+      { name: "소머리국밥", category: "soup", spiciness: "non-spicy", occasion: ["daily"] },
+      { name: "돼지국밥", category: "soup", spiciness: "mild", occasion: ["daily"] },
+      { name: "추어탕", category: "soup", spiciness: "mild", occasion: ["daily"] },
+      { name: "삼계탕", category: "soup", spiciness: "non-spicy", occasion: ["daily", "date"] },
+      { name: "청국장", category: "soup", spiciness: "non-spicy", occasion: ["daily"] },
+      { name: "동태탕", category: "soup", spiciness: "spicy", occasion: ["daily"] },
+      { name: "마라탕", category: "soup", spiciness: "spicy", occasion: ["daily", "date"] },
+      { name: "쌀국수", category: "soup", spiciness: "mild", occasion: ["daily", "date"] },
+      { name: "수제비", category: "soup", spiciness: "non-spicy", occasion: ["daily"] },
+      // 구이/볶음류
+      { name: "삼겹살", category: "grill_stirfry", spiciness: "non-spicy", occasion: ["daily", "date"] },
+      { name: "불고기", category: "grill_stirfry", spiciness: "non-spicy", occasion: ["daily", "date"] },
+      { name: "닭갈비", category: "grill_stirfry", spiciness: "spicy", occasion: ["daily", "date"] },
+      { name: "장어구이", category: "grill_stirfry", spiciness: "non-spicy", occasion: ["date"] },
+      { name: "고등어구이", category: "grill_stirfry", spiciness: "non-spicy", occasion: ["daily"] },
+      { name: "떡갈비", category: "grill_stirfry", spiciness: "non-spicy", occasion: ["daily", "date"] },
+      { name: "제육볶음", category: "grill_stirfry", spiciness: "spicy", occasion: ["daily", "date"] },
+      { name: "오징어볶음", category: "grill_stirfry", spiciness: "spicy", occasion: ["daily"] },
+      { name: "낙지볶음", category: "grill_stirfry", spiciness: "spicy", occasion: ["daily", "date"] },
+      { name: "고등어조림", category: "grill_stirfry", spiciness: "mild", occasion: ["daily"] },
+      { name: "갈치조림", category: "grill_stirfry", spiciness: "mild", occasion: ["daily"] },
+      { name: "장조림", category: "grill_stirfry", spiciness: "non-spicy", occasion: ["daily"] },
+      { name: "곱창볶음", category: "grill_stirfry", spiciness: "spicy", occasion: ["daily", "date"] },
+      { name: "두부조림", category: "grill_stirfry", spiciness: "mild", occasion: ["daily"] },
+      { name: "돈까스", category: "grill_stirfry", spiciness: "non-spicy", occasion: ["daily", "date"] },
+      { name: "튀김", category: "grill_stirfry", spiciness: "non-spicy", occasion: ["quick", "daily"] },
+      { name: "탄두리치킨", category: "grill_stirfry", spiciness: "mild", occasion: ["date"] },
+      { name: "케밥", category: "grill_stirfry", spiciness: "non-spicy", occasion: ["quick", "daily"] },
+      // 밥/면류
+      { name: "비빔밥", category: "rice_noodle", spiciness: "mild", occasion: ["daily", "date"] },
+      { name: "돌솥비빔밥", category: "rice_noodle", spiciness: "mild", occasion: ["daily", "date"] },
+      { name: "육회비빔밥", category: "rice_noodle", spiciness: "mild", occasion: ["daily", "date"] },
+      { name: "쌈밥", category: "rice_noodle", spiciness: "non-spicy", occasion: ["daily", "date"] },
+      { name: "한식뷔페", category: "rice_noodle", spiciness: "non-spicy", occasion: ["daily", "date"] },
+      { name: "계란밥", category: "rice_noodle", spiciness: "non-spicy", occasion: ["quick", "daily"] },
+      { name: "카레", category: "rice_noodle", spiciness: "mild", occasion: ["daily"] },
+      { name: "오징어덮밥", category: "rice_noodle", spiciness: "mild", occasion: ["daily"] },
+      { name: "제육덮밥", category: "rice_noodle", spiciness: "spicy", occasion: ["daily"] },
+      { name: "잡채덮밥", category: "rice_noodle", spiciness: "non-spicy", occasion: ["daily"] },
+      { name: "오므라이스", category: "rice_noodle", spiciness: "non-spicy", occasion: ["daily", "date"] },
+      { name: "낙지덮밥", category: "rice_noodle", spiciness: "spicy", occasion: ["daily"] },
+      { name: "새우볶음밥", category: "rice_noodle", spiciness: "non-spicy", occasion: ["daily"] },
+      { name: "뚝배기불고기", category: "rice_noodle", spiciness: "non-spicy", occasion: ["daily", "date"] },
+      { name: "알밥", category: "rice_noodle", spiciness: "non-spicy", occasion: ["daily"] },
+      { name: "김치볶음밥", category: "rice_noodle", spiciness: "spicy", occasion: ["daily"] },
+      { name: "잡채밥", category: "rice_noodle", spiciness: "non-spicy", occasion: ["daily"] },
+      { name: "유산슬덮밥", category: "rice_noodle", spiciness: "non-spicy", occasion: ["daily"] },
+      { name: "마파두부덮밥", category: "rice_noodle", spiciness: "spicy", occasion: ["daily"] },
+      { name: "삼선볶음밥", category: "rice_noodle", spiciness: "non-spicy", occasion: ["daily"] },
+      { name: "송이덮밥", category: "rice_noodle", spiciness: "non-spicy", occasion: ["daily", "date"] },
+      { name: "짬뽕밥", category: "rice_noodle", spiciness: "spicy", occasion: ["daily"] },
+      { name: "가지덮밥", category: "rice_noodle", spiciness: "non-spicy", occasion: ["daily"] },
+      { name: "가츠동", category: "rice_noodle", spiciness: "non-spicy", occasion: ["daily"] },
+      { name: "규동", category: "rice_noodle", spiciness: "non-spicy", occasion: ["daily"] },
+      { name: "오야꼬동", category: "rice_noodle", spiciness: "non-spicy", occasion: ["daily"] },
+      { name: "텐동", category: "rice_noodle", spiciness: "non-spicy", occasion: ["daily"] },
+      { name: "사케동", category: "rice_noodle", spiciness: "non-spicy", occasion: ["daily", "date"] },
+      { name: "장어덮밥", category: "rice_noodle", spiciness: "non-spicy", occasion: ["daily", "date"] },
+      { name: "참치덮밥", category: "rice_noodle", spiciness: "non-spicy", occasion: ["daily", "date"] },
+      { name: "김밥", category: "rice_noodle", spiciness: "non-spicy", occasion: ["quick", "daily"] },
+      { name: "떡볶이", category: "rice_noodle", spiciness: "spicy", occasion: ["quick", "daily"] },
+      { name: "순대", category: "rice_noodle", spiciness: "non-spicy", occasion: ["quick", "daily"] },
+      { name: "라볶이", category: "rice_noodle", spiciness: "spicy", occasion: ["quick", "daily"] },
+      { name: "짜장면", category: "rice_noodle", spiciness: "non-spicy", occasion: ["daily", "date"] },
+      { name: "짬뽕", category: "rice_noodle", spiciness: "spicy", occasion: ["daily", "date"] },
+      { name: "울면", category: "rice_noodle", spiciness: "non-spicy", occasion: ["daily"] },
+      { name: "쟁반짜장", category: "rice_noodle", spiciness: "non-spicy", occasion: ["daily", "date"] },
+      { name: "물냉면", category: "rice_noodle", spiciness: "mild", occasion: ["daily"] },
+      { name: "비빔냉면", category: "rice_noodle", spiciness: "spicy", occasion: ["daily"] },
+      { name: "비빔국수", category: "rice_noodle", spiciness: "spicy", occasion: ["daily"] },
+      { name: "메밀국수", category: "rice_noodle", spiciness: "non-spicy", occasion: ["daily"] },
+      { name: "쫄면", category: "rice_noodle", spiciness: "spicy", occasion: ["daily"] },
+      { name: "라멘", category: "rice_noodle", spiciness: "mild", occasion: ["daily"] },
+      { name: "나가사키짬뽕", category: "rice_noodle", spiciness: "spicy", occasion: ["daily"] },
+      { name: "소바", category: "rice_noodle", spiciness: "non-spicy", occasion: ["daily"] },
+      { name: "스시", category: "rice_noodle", spiciness: "non-spicy", occasion: ["date"] },
+      { name: "사시미", category: "rice_noodle", spiciness: "non-spicy", occasion: ["date"] },
+      { name: "토마토 파스타", category: "rice_noodle", spiciness: "non-spicy", occasion: ["date"] },
+      { name: "크림 파스타", category: "rice_noodle", spiciness: "non-spicy", occasion: ["date"] },
+      { name: "로제 파스타", category: "rice_noodle", spiciness: "non-spicy", occasion: ["date"] },
+      { name: "알리오올리오", category: "rice_noodle", spiciness: "mild", occasion: ["date"] },
+      { name: "우동", category: "rice_noodle", spiciness: "non-spicy", occasion: ["daily"] },
+      { name: "칼국수", category: "rice_noodle", spiciness: "non-spicy", occasion: ["daily"] },
+      { name: "잔치국수", category: "rice_noodle", spiciness: "non-spicy", occasion: ["daily"] },
+      { name: "냉모밀", category: "rice_noodle", spiciness: "non-spicy", occasion: ["daily"] },
+      // 간편식
+      { name: "피자", category: "quick", spiciness: "non-spicy", occasion: ["daily", "date"] },
+      { name: "라자냐", category: "quick", spiciness: "non-spicy", occasion: ["date"] },
+      { name: "그라탱", category: "quick", spiciness: "non-spicy", occasion: ["date"] },
+      { name: "함박 스테이크", category: "quick", spiciness: "non-spicy", occasion: ["daily", "date"] },
+      { name: "클럽샌드위치", category: "quick", spiciness: "non-spicy", occasion: ["quick", "daily"] },
+      { name: "베이컨에그샌드위치", category: "quick", spiciness: "non-spicy", occasion: ["quick", "daily"] },
+      { name: "핫도그", category: "quick", spiciness: "non-spicy", occasion: ["quick", "daily"] },
+      { name: "햄버거", category: "quick", spiciness: "non-spicy", occasion: ["quick", "daily"] },
+      { name: "샐러드", category: "quick", spiciness: "non-spicy", occasion: ["quick", "date"] },
+      { name: "포케", category: "quick", spiciness: "non-spicy", occasion: ["quick", "date"] },
+      { name: "난 + 커리", category: "quick", spiciness: "mild", occasion: ["daily", "date"] },
+      { name: "부리또", category: "quick", spiciness: "mild", occasion: ["quick", "daily"] },
+      { name: "타코", category: "quick", spiciness: "mild", occasion: ["quick", "daily"] },
+      { name: "퀘사디아", category: "quick", spiciness: "mild", occasion: ["quick", "daily"] },
+      { name: "편의점 도시락", category: "quick", spiciness: "non-spicy", occasion: ["quick"] },
+      { name: "컵라면", category: "quick", spiciness: "spicy", occasion: ["quick"] },
+      { name: "즉석밥 + 반찬", category: "quick", spiciness: "non-spicy", occasion: ["quick"] },
+      { name: "바나나 + 삶은계란", category: "quick", spiciness: "non-spicy", occasion: ["quick"] },
+      { name: "시리얼 + 우유", category: "quick", spiciness: "non-spicy", occasion: ["quick"] },
+      { name: "베이글 + 크림치즈", category: "quick", spiciness: "non-spicy", occasion: ["quick", "date"] },
+      { name: "요거트 + 과일", category: "quick", spiciness: "non-spicy", occasion: ["quick"] },
+      { name: "토스트 + 달걀프라이", category: "quick", spiciness: "non-spicy", occasion: ["quick"] },
+      { name: "전복죽", category: "quick", spiciness: "non-spicy", occasion: ["daily", "date"] },
+      { name: "호박죽", category: "quick", spiciness: "non-spicy", occasion: ["daily"] },
+      { name: "단팥죽", category: "quick", spiciness: "non-spicy", occasion: ["daily"] },
+      { name: "소고기야채죽", category: "quick", spiciness: "non-spicy", occasion: ["daily"] }
+    ];
+
+    const steps = {
+      category: document.getElementById('step-category'),
+      spiciness: document.getElementById('step-spiciness'),
+      occasion: document.getElementById('step-occasion')
+    };
+    const menuList = document.getElementById('menu-list');
+    let selections = { category: 'all', spiciness: 'all', occasion: 'all' };
+
+    function showStep(stepKey) {
+      Object.values(steps).forEach(step => step.classList.add('hidden'));
+      steps[stepKey].classList.remove('hidden');
+      renderMenus(stepKey);
+    }
+
+    function getSelectedValue(filterGroup) {
+      return filterGroup.querySelector('.filter-box.selected').dataset.value;
+    }
+
+    function setSelectedValue(filterGroup, value) {
+      filterGroup.querySelectorAll('.filter-box').forEach(box => {
+        box.classList.toggle('selected', box.dataset.value === value);
+      });
+    }
+
+    function renderMenus(currentStep) {
+      let filteredMenus;
+      if (currentStep === 'category') {
+        filteredMenus = menus.filter(menu => 
+          selections.category === 'all' || menu.category === selections.category
+        );
+        menuList.classList.remove('hidden');
+      } else if (currentStep === 'spiciness') {
+        filteredMenus = menus.filter(menu => 
+          (selections.category === 'all' || menu.category === selections.category) &&
+          (selections.spiciness === 'all' || menu.spiciness === selections.spiciness)
+        );
+        menuList.classList.remove('hidden');
+      } else {
+        filteredMenus = menus.filter(menu => 
+          (selections.category === 'all' || menu.category === selections.category) &&
+          (selections.spiciness === 'all' || menu.spiciness === selections.spiciness) &&
+          (selections.occasion === 'all' || menu.occasion.includes(selections.occasion))
+        );
+        menuList.classList.remove('hidden');
+      }
+
+      menuList.innerHTML = filteredMenus.map(menu => `
+        <div class="menu-card bg-gray-50 p-4 rounded-lg shadow-md">
+          <h3 class="text-lg font-semibold text-gray-800">${menu.name}</h3>
+          <p class="text-sm text-gray-600">카테고리: ${menu.category === 'soup' ? '국물/탕류' : menu.category === 'grill_stirfry' ? '구이/볶음류' : menu.category === 'rice_noodle' ? '밥/면류' : '간편식'}</p>
+          <p class="text-sm text-gray-600">맵기: ${menu.spiciness === 'non-spicy' ? '맵지 않음' : menu.spiciness === 'mild' ? '약간 매움' : '매움'}</p>
+          <p class="text-sm text-gray-600">상황: ${menu.occasion.map(o => o === 'daily' ? '일상' : o === 'quick' ? '간편' : '데이트').join(', ')}</p>
+        </div>
+      `).join('');
+    }
+
+    // Add click event listeners to filter boxes
+    document.querySelectorAll('.filter-box').forEach(box => {
+      box.addEventListener('click', () => {
+        const filterGroup = box.parentElement;
+        filterGroup.querySelectorAll('.filter-box').forEach(b => b.classList.remove('selected'));
+        box.classList.add('selected');
+        selections[box.dataset.filter] = box.dataset.value;
+
+        // Auto-advance based on filter type
+        if (box.dataset.filter === 'category') {
+          setSelectedValue(steps.spiciness, selections.spiciness);
+          showStep('spiciness');
+        } else if (box.dataset.filter === 'spiciness') {
+          setSelectedValue(steps.occasion, selections.occasion);
+          showStep('occasion');
+        } else {
+          renderMenus('occasion');
+        }
+      });
+    });
+
+    // Navigation buttons
+    document.getElementById('prev-spiciness').addEventListener('click', () => {
+      showStep('category');
+    });
+
+    document.getElementById('prev-occasion').addEventListener('click', () => {
+      showStep('spiciness');
+    });
+
+    document.getElementById('reset-occasion').addEventListener('click', () => {
+      selections = { category: 'all', spiciness: 'all', occasion: 'all' };
+      setSelectedValue(steps.category, 'all');
+      setSelectedValue(steps.spiciness, 'all');
+      setSelectedValue(steps.occasion, 'all');
+      showStep('category');
+    });
+
+    // Initial setup
+    showStep('category');
+  </script>
+</body>
+</html>
