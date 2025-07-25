@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>점심 메뉴 추천</title>
+  <title>오늘 점심 뭐먹지?</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body {
@@ -58,16 +58,27 @@
     @media (max-width: 640px) {
       .category-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-rows: repeat(3, auto);
       }
       .category-grid .bottom-row {
         grid-column: span 2;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-rows: auto;
+      }
+      .category-grid .bottom-row .filter-box:first-child {
+        grid-column: 1;
+        grid-row: 1;
+      }
+      .category-grid .bottom-row .filter-box:last-child {
+        grid-column: 1;
+        grid-row: 2;
       }
     }
   </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col items-center p-4">
   <div class="max-w-4xl w-full bg-white rounded-lg shadow-lg p-6">
-    <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">🍽️오늘 점심 뭐먹지❓</h1>
+    <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">🍽️ 오늘 점심 뭐먹지 ❓</h1>
     
     <!-- Filter Steps -->
     <div id="filter-steps" class="mb-6">
