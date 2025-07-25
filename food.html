@@ -59,6 +59,7 @@
       .category-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         grid-template-rows: repeat(3, auto);
+        gap: 1rem;
       }
       .category-grid .filter-box:nth-child(1) {
         grid-column: 1;
@@ -72,18 +73,13 @@
         grid-column: 1;
         grid-row: 2;
       }
-      .category-grid .bottom-row {
-        grid-column: span 2;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        grid-template-rows: auto;
-      }
       .category-grid .bottom-row .filter-box:first-child {
         grid-column: 2;
-        grid-row: 1;
+        grid-row: 2;
       }
       .category-grid .bottom-row .filter-box:last-child {
         grid-column: 1;
-        grid-row: 2;
+        grid-row: 3;
       }
     }
   </style>
