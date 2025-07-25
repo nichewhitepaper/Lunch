@@ -76,10 +76,10 @@
         <label class="block text-lg font-medium text-gray-700 mb-4 text-center">카테고리를 선택하세요 ✅</label>
         <div class="category-grid">
           <div class="filter-box selected" data-filter="category" data-value="all">모두 🌟</div>
-          <div class="filter-box" data-filter="category" data-value="soup">국물/탕류 🍜</div>
-          <div class="filter-box" data-filter="category" data-value="grill_stirfry">구이/볶음류 🍖</div>
+          <div class="filter-box" data-filter="category" data-value="soup">국물/탕 🍜</div>
+          <div class="filter-box" data-filter="category" data-value="grill_stirfry">구이/볶음 🍖</div>
           <div class="bottom-row">
-            <div class="filter-box" data-filter="category" data-value="rice_noodle">밥/면류 🍚</div>
+            <div class="filter-box" data-filter="category" data-value="rice_noodle">밥/면 🍚</div>
             <div class="filter-box" data-filter="category" data-value="quick">간편식 🥪</div>
           </div>
         </div>
@@ -300,7 +300,7 @@
       menuList.innerHTML = filteredMenus.map(menu => `
         <div class="menu-card bg-gray-50 p-4 rounded-lg shadow-md">
           <h3 class="text-lg font-semibold text-gray-800">${menu.name}</h3>
-          <p class="text-sm text-gray-600">카테고리: ${menu.category === 'soup' ? '국물/탕류 🍜' : menu.category === 'grill_stirfry' ? '구이/볶음류 🍖' : menu.category === 'rice_noodle' ? '밥/면류 🍚' : '간편식 🥪'}</p>
+          <p class="text-sm text-gray-600">카테고리: ${menu.category === 'soup' ? '국물/탕 🍜' : menu.category === 'grill_stirfry' ? '구이/볶음 🍖' : menu.category === 'rice_noodle' ? '밥/면 🍚' : '간편식 🥪'}</p>
           <p class="text-sm text-gray-600">맵기: ${menu.spiciness === 'non-spicy' ? '맵지 않음 😊' : menu.spiciness === 'mild' ? '약간 매움 🔥' : '매움 🌶️'}</p>
           <p class="text-sm text-gray-600">상황: ${menu.occasion.map(o => o === 'daily' ? '일상 🏠' : o === 'quick' ? '간편 ⏳' : '데이트 💑').join(', ')}</p>
         </div>
